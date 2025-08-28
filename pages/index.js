@@ -7,53 +7,27 @@ const steps = [
   {
     label: "ব্যক্তিগত তথ্য",
     icon: <FaUser />,
-    fields: [
-      "name",
-      "fatherName",
-      "motherName",
-      "nid",
-      "dob",
-      "phone",
-    ],
+    fields: ["name", "fatherName", "motherName", "nid", "dob", "phone"],
   },
   {
     label: "ঠিকানা",
     icon: <FaHome />,
-    fields: [
-      "village",
-      "union",
-      "upazila",
-      "district",
-      "familyMembers",
-    ],
+    fields: ["village", "union", "upazila", "district", "familyMembers"],
   },
   {
     label: "আয় এবং সম্পদ",
     icon: <FaMoneyBillWave />,
-    fields: [
-      "incomeSource",
-      "monthlyIncome",
-      "landSize",
-      "houseType",
-      "toiletType",
-    ],
+    fields: ["incomeSource", "monthlyIncome", "landSize", "houseType", "toiletType"],
   },
   {
     label: "পরিবারের চলাচল",
     icon: <FaChild />,
-    fields: [
-      "totalChildren",
-      "boys",
-      "girls",
-      "waterSource",
-    ],
+    fields: ["totalChildren", "boys", "girls", "waterSource"],
   },
   {
     label: "অনুদান ও চাহিদা",
     icon: <FaGift />,
-    fields: [
-      "donationItem",
-    ],
+    fields: ["donationItem"],
   },
 ];
 
@@ -84,6 +58,7 @@ export default function Home() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -99,11 +74,32 @@ export default function Home() {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+
+    // typing করার সাথে সাথে error clear হবে
+    setErrors({ ...errors, [name]: "" });
+  };
+
+  // Validation helper
+  const validateFields = (fields) => {
+    const newErrors = {};
+    fields.forEach((field) => {
+      if (
+        (Array.isArray(formData[field]) && formData[field].length === 0) ||
+        (!Array.isArray(formData[field]) && !formData[field])
+      ) {
+        newErrors[field] = "⚠️ এই ফিল্ডটি পূরণ করুন";
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    // You can add validation here per step if needed
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    const currentFields = steps[currentStep].fields;
+    if (!validateFields(currentFields)) return;
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const handleBack = () => {
@@ -111,58 +107,45 @@ export default function Home() {
   };
 
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    const currentFields = steps[currentStep].fields;
+    if (!validateFields(currentFields)) return;
 
-  // শেষ ধাপে সব ফিল্ড চেক করা
-  const currentFields = steps[currentStep].fields;
-  for (let field of currentFields) {
-    if (
-      (Array.isArray(formData[field]) && formData[field].length === 0) || // checkbox check
-      (!Array.isArray(formData[field]) && !formData[field])
-    ) {
-      alert(`❌ "${field}" ফিল্ডটি পূরণ করুন!`);
-      return; // ফাঁকা থাকলে সাবমিট হবে না
-    }
-  }
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      console.log("Form Submitted:", formData);
+      alert(" ✅ ফর্ম সাবমিট হয়েছে!");
+      setCurrentStep(0);
+      setFormData({
+        name: "",
+        fatherName: "",
+        motherName: "",
+        nid: "",
+        dob: "",
+        phone: "",
+        village: "",
+        union: "",
+        upazila: "",
+        district: "",
+        familyMembers: "",
+        incomeSource: "",
+        monthlyIncome: "",
+        landSize: "",
+        houseType: "",
+        toiletType: "",
+        donationItem: "",
+        waterSource: [],
+        totalChildren: "",
+        boys: "",
+        girls: "",
+      });
+      setErrors({});
+    }, 1500);
+  };
 
-  setLoading(true);
-  setTimeout(() => {
-    setLoading(false);
-    console.log("Form Submitted:", formData);
-    alert("✅ ফর্ম সাবমিট হয়েছে!");
-    setCurrentStep(0);
-    setFormData({
-      name: "",
-      fatherName: "",
-      motherName: "",
-      nid: "",
-      dob: "",
-      phone: "",
-      village: "",
-      union: "",
-      upazila: "",
-      district: "",
-      familyMembers: "",
-      incomeSource: "",
-      monthlyIncome: "",
-      landSize: "",
-      houseType: "",
-      toiletType: "",
-      donationItem: "",
-      waterSource: [],
-      totalChildren: "",
-      boys: "",
-      girls: "",
-    });
-  }, 1500);
-};
-
-
-  // Helper to render input fields based on step
+  // Render fields
   const renderField = (name) => {
-    const commonClasses =
-      "h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 bg-white hover:shadow-lg";
-
     switch (name) {
       case "name":
         return (
@@ -173,7 +156,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="আপনার নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "fatherName":
@@ -185,7 +168,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="পিতার নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "motherName":
@@ -197,7 +180,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="মাতার নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "nid":
@@ -210,6 +193,7 @@ export default function Home() {
             onChange={handleChange}
             placeholder="এনআইডি নাম্বার লিখুন"
             type="text"
+            error={errors[name]}
           />
         );
       case "dob":
@@ -221,7 +205,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             type="date"
-            required
+            error={errors[name]}
           />
         );
       case "phone":
@@ -233,8 +217,8 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="ফোন নাম্বার লিখুন"
-            required
             type="tel"
+            error={errors[name]}
           />
         );
       case "village":
@@ -246,7 +230,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="গ্রামের নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "union":
@@ -258,7 +242,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="ইউনিয়নের নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "upazila":
@@ -270,7 +254,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="উপজেলার নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "district":
@@ -282,7 +266,7 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="জেলার নাম লিখুন"
-            required
+            error={errors[name]}
           />
         );
       case "familyMembers":
@@ -294,9 +278,9 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="পরিবারের সদস্য সংখ্যা লিখুন"
-            required
             type="number"
             min={1}
+            error={errors[name]}
           />
         );
       case "incomeSource":
@@ -307,18 +291,8 @@ export default function Home() {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            required
-            options={[
-              "কৃষি",
-              "ব্যবসা",
-              "দিনমজুর",
-              "মৎস",
-              "গৃহিণী",
-              "বেসরকারি চাকরি",
-              "সরকারি চাকরি",
-              "অন্যান্য",
-              "বেকার",
-            ]}
+            options={["কৃষি","ব্যবসা","দিনমজুর","মৎস","গৃহিণী","বেসরকারি চাকরি","সরকারি চাকরি","অন্যান্য","বেকার"]}
+            error={errors[name]}
           />
         );
       case "monthlyIncome":
@@ -329,28 +303,8 @@ export default function Home() {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            required
-            options={[
-              "৫০০-১০০০ টাকা",
-              "১০০০-১৫০০ টাকা",
-              "২০০০-২৫০০ টাকা",
-              "২৫০০-৩০০০ টাকা",
-              "৩০০০-৩৫০০ টাকা",
-              "৩৫০۰-৪০০০ টাকা",
-              "৪০০০-৪৫০০ টাকা",
-              "৪৫০০-৫০০০ টাকা",
-              "৫০০০-৬০০০ টাকা",
-              "৬০০০-৭০০০ টাকা",
-              "৭০০০-৮০০০ টাকা",
-              "৮০০০-১০০০০ টাকা",
-              "১০০০০-১২০০০ টাকা",
-              "১২০০০-১৫০০০ টাকা",
-              "১৫০০০-২০০০০ টাকা",
-              "২০০০০-২৫০০০ টাকা",
-              "২৫০০০-৩০০০০ টাকা",
-              "৩০০০০-৪০০০০ টাকা",
-              "৪০০০০ টাকার উপরে",
-            ]}
+            options={["৫০০-১০০০ টাকা","১০০০-১৫০০ টাকা","২০০০-২৫০০ টাকা","২৫০০-৩০০০ টাকা","৩০০০-৩৫০০ টাকা","৩৫০০-৪০০০ টাকা","৪০০০-৪৫০০ টাকা","৪৫০০-৫০০০ টাকা","৫০০০-৬০০০ টাকা","৬০০০-৭০০০ টাকা","৭০০০-৮০০০ টাকা","৮০০০-১০০০০ টাকা","১০০০০-১২০০০ টাকা","১২০০০-১৫০০০ টাকা","১৫০০০-২০০০০ টাকা","২০০০০-২৫০০০ টাকা","২৫০০০-৩০০০০ টাকা","৩০০০০-৪০০০০ টাকা","৪০০০০ টাকার উপরে"]}
+            error={errors[name]}
           />
         );
       case "landSize":
@@ -362,8 +316,8 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="জমির পরিমাণ লিখুন"
-            required
             type="number"
+            error={errors[name]}
           />
         );
       case "houseType":
@@ -374,8 +328,8 @@ export default function Home() {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            required
             options={["ইটের", "কাঠের", "মাটির", "অন্যান্য"]}
+            error={errors[name]}
           />
         );
       case "toiletType":
@@ -386,8 +340,8 @@ export default function Home() {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            required
             options={["স্যানিটারি", "কাঁচা", "অন্যান্য"]}
+            error={errors[name]}
           />
         );
       case "donationItem":
@@ -398,8 +352,8 @@ export default function Home() {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            required
             options={["টয়লেট প্যান", "রিং স্ল্যাব"]}
+            error={errors[name]}
           />
         );
       case "waterSource":
@@ -411,6 +365,7 @@ export default function Home() {
             options={["টিউবওয়েল", "কূপ", "নদী", "অন্যান্য"]}
             selected={formData.waterSource}
             onChange={handleChange}
+            error={errors[name]}
           />
         );
       case "totalChildren":
@@ -422,9 +377,9 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="মোট সন্তান সংখ্যা লিখুন"
-            required
             type="number"
             min={0}
+            error={errors[name]}
           />
         );
       case "boys":
@@ -436,9 +391,9 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="ছেলে সন্তানের সংখ্যা"
-            required
             type="number"
             min={0}
+            error={errors[name]}
           />
         );
       case "girls":
@@ -450,9 +405,9 @@ export default function Home() {
             value={formData[name]}
             onChange={handleChange}
             placeholder="মেয়ে সন্তানের সংখ্যা"
-            required
             type="number"
             min={0}
+            error={errors[name]}
           />
         );
       default:
@@ -471,7 +426,6 @@ export default function Home() {
             className="w-full h-full object-cover brightness-90"
           />
           <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-black/30" />
-          {/* Centered Logo */}
           <div className="absolute left-1/2 bottom-4 md:bottom-8 transform -translate-x-1/2 rounded-full border-4 border-white shadow-lg overflow-hidden w-24 h-24 md:w-32 md:h-32 bg-white">
             <img
               src="/grok_image_x9u3x4t.jpg"
@@ -482,7 +436,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Form Container with Glassmorphism */}
+      {/* Form */}
       <div className="w-full max-w-5xl mt-20 backdrop-blur-md bg-white/70 rounded-3xl p-8 shadow-xl border border-white/30 overflow-hidden">
         <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-8 drop-shadow-lg">
           রেজিস্ট্রেশন ফর্ম
@@ -537,17 +491,16 @@ export default function Home() {
             key={currentStep}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-700 ease-in-out"
           >
-            {/* Render fields of current step */}
             {steps[currentStep].fields.map((fieldName) => renderField(fieldName))}
           </div>
 
-          {/* Navigation Buttons */}
+          {/* Navigation */}
           <div className="flex justify-between items-center mt-6 max-w-3xl mx-auto px-2">
             {currentStep > 0 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="rounded-lg px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium shadow-sm transition transform hover:-translate-y-0.5"
+                className="rounded-lg px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium shadow-sm transition"
               >
                 পূর্বের
               </button>
@@ -565,9 +518,9 @@ export default function Home() {
               </button>
             ) : (
               <button
-                type="button"
+                type="submit"
                 disabled={loading}
-                className={`rounded-lg px-8 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold shadow-lg hover:scale-105 transform transition flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
+                className="rounded-lg px-8 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold shadow-lg hover:scale-105 transform transition flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <svg
@@ -597,33 +550,13 @@ export default function Home() {
           </div>
         </form>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-white/80 backdrop-blur-md w-full max-w-6xl rounded-t-3xl mt-16 border-t border-gray-200 shadow-inner">
-        <div className="flex flex-col items-center py-6 space-y-4 text-gray-600 text-sm md:text-base">
-          <nav className="flex gap-8">
-            <a href="#" className="hover:text-blue-600 transition">
-              সর্বাবলী
-            </a>
-            <a href="#" className="hover:text-blue-600 transition">
-              প্রাইভাসি নিতি
-            </a>
-            <a href="#" className="hover:text-blue-600 transition">
-              যোগাযোগ
-            </a>
-          </nav>
-          <p className="text-gray-500 select-none">
-            © UFO নিরাপদ শৌচাগার কর্মসূচী. সর্বস্বত্ব সংরক্ষিত
-          </p>
-        </div>
-      </footer>
     </main>
   );
 }
 
-// Smaller input components for reuse
+/* ---------- Small Components ---------- */
 
-function InputField({ label, name, value, onChange, placeholder, type = "text", required = false, min }) {
+function InputField({ label, name, value, onChange, placeholder, type = "text", min, error }) {
   return (
     <label className="flex flex-col">
       <span className="text-gray-700 font-medium pb-2">{label}</span>
@@ -633,15 +566,17 @@ function InputField({ label, name, value, onChange, placeholder, type = "text", 
         onChange={onChange}
         placeholder={placeholder}
         type={type}
-        required={required}
         min={min}
-        className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 bg-white hover:shadow-lg"
+        className={`h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 bg-white hover:shadow-lg placeholder-gray-400 placeholder-opacity-100
+          ${error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"}
+        `}
       />
+      {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
     </label>
   );
 }
 
-function SelectField({ label, name, value, onChange, required = false, options }) {
+function SelectField({ label, name, value, onChange, options, error }) {
   return (
     <label className="flex flex-col">
       <span className="text-gray-700 font-medium pb-2">{label}</span>
@@ -649,39 +584,42 @@ function SelectField({ label, name, value, onChange, required = false, options }
         name={name}
         value={value}
         onChange={onChange}
-        required={required}
-        className="h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 hover:shadow-lg"
+        className={`h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 bg-white hover:shadow-lg
+          ${error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"}
+        `}
       >
-        <option value="">অনুগ্রহ করে নির্বাচন করুন</option>
+        <option value="">-- নির্বাচন করুন --</option>
         {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
+          <option key={opt} value={opt}>{opt}</option>
         ))}
       </select>
+      {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
     </label>
   );
 }
 
-function CheckboxGroup({ label, name, options, selected, onChange }) {
+function CheckboxGroup({ label, name, options, selected, onChange, error }) {
   return (
-    <div className="flex flex-col mb-4">
-      <span className="text-gray-700 font-medium pb-2">{label}</span>
+    <fieldset className="flex flex-col">
+      <legend className="text-gray-700 font-medium pb-2">{label}</legend>
       <div className="flex flex-wrap gap-4">
         {options.map((opt) => (
-          <label key={opt} className="flex items-center space-x-2 cursor-pointer select-none">
+          <label key={opt} className="flex items-center gap-2">
             <input
               type="checkbox"
               name={name}
               value={opt}
               checked={selected.includes(opt)}
               onChange={onChange}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
+              className={`h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500
+                ${error ? "border-red-500" : ""}
+              `}
             />
             <span>{opt}</span>
           </label>
         ))}
       </div>
-    </div>
+      {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
+    </fieldset>
   );
 }
