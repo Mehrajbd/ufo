@@ -1,6 +1,61 @@
 "use client";
 
 import { useState } from "react";
+import { FaUser, FaHome, FaMoneyBillWave, FaChild, FaGift } from "react-icons/fa";
+
+const steps = [
+  {
+    label: "ব্যক্তিগত তথ্য",
+    icon: <FaUser />,
+    fields: [
+      "name",
+      "fatherName",
+      "motherName",
+      "nid",
+      "dob",
+      "phone",
+    ],
+  },
+  {
+    label: "ঠিকানা",
+    icon: <FaHome />,
+    fields: [
+      "village",
+      "union",
+      "upazila",
+      "district",
+      "familyMembers",
+    ],
+  },
+  {
+    label: "আয় এবং সম্পদ",
+    icon: <FaMoneyBillWave />,
+    fields: [
+      "incomeSource",
+      "monthlyIncome",
+      "landSize",
+      "houseType",
+      "toiletType",
+    ],
+  },
+  {
+    label: "পরিবারের চলাচল",
+    icon: <FaChild />,
+    fields: [
+      "totalChildren",
+      "boys",
+      "girls",
+      "waterSource",
+    ],
+  },
+  {
+    label: "অনুদান ও চাহিদা",
+    icon: <FaGift />,
+    fields: [
+      "donationItem",
+    ],
+  },
+];
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -27,6 +82,9 @@ export default function Home() {
     girls: "",
   });
 
+  const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -43,422 +101,587 @@ export default function Home() {
     }
   };
 
+  const handleNext = () => {
+    // You can add validation here per step if needed
+    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
+
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  // শেষ ধাপে সব ফিল্ড চেক করা
+  const currentFields = steps[currentStep].fields;
+  for (let field of currentFields) {
+    if (
+      (Array.isArray(formData[field]) && formData[field].length === 0) || // checkbox check
+      (!Array.isArray(formData[field]) && !formData[field])
+    ) {
+      alert(`❌ "${field}" ফিল্ডটি পূরণ করুন!`);
+      return; // ফাঁকা থাকলে সাবমিট হবে না
+    }
+  }
+
+  setLoading(true);
+  setTimeout(() => {
+    setLoading(false);
     console.log("Form Submitted:", formData);
     alert("✅ ফর্ম সাবমিট হয়েছে!");
+    setCurrentStep(0);
+    setFormData({
+      name: "",
+      fatherName: "",
+      motherName: "",
+      nid: "",
+      dob: "",
+      phone: "",
+      village: "",
+      union: "",
+      upazila: "",
+      district: "",
+      familyMembers: "",
+      incomeSource: "",
+      monthlyIncome: "",
+      landSize: "",
+      houseType: "",
+      toiletType: "",
+      donationItem: "",
+      waterSource: [],
+      totalChildren: "",
+      boys: "",
+      girls: "",
+    });
+  }, 1500);
+};
+
+
+  // Helper to render input fields based on step
+  const renderField = (name) => {
+    const commonClasses =
+      "h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 bg-white hover:shadow-lg";
+
+    switch (name) {
+      case "name":
+        return (
+          <InputField
+            key={name}
+            label="নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="আপনার নাম লিখুন"
+            required
+          />
+        );
+      case "fatherName":
+        return (
+          <InputField
+            key={name}
+            label="পিতার নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="পিতার নাম লিখুন"
+            required
+          />
+        );
+      case "motherName":
+        return (
+          <InputField
+            key={name}
+            label="মাতার নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="মাতার নাম লিখুন"
+            required
+          />
+        );
+      case "nid":
+        return (
+          <InputField
+            key={name}
+            label="এনআইডি নাম্বার"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="এনআইডি নাম্বার লিখুন"
+            type="text"
+          />
+        );
+      case "dob":
+        return (
+          <InputField
+            key={name}
+            label="জন্ম তারিখ *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            type="date"
+            required
+          />
+        );
+      case "phone":
+        return (
+          <InputField
+            key={name}
+            label="ফোন নাম্বার *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="ফোন নাম্বার লিখুন"
+            required
+            type="tel"
+          />
+        );
+      case "village":
+        return (
+          <InputField
+            key={name}
+            label="গ্রামের নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="গ্রামের নাম লিখুন"
+            required
+          />
+        );
+      case "union":
+        return (
+          <InputField
+            key={name}
+            label="ইউনিয়নের নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="ইউনিয়নের নাম লিখুন"
+            required
+          />
+        );
+      case "upazila":
+        return (
+          <InputField
+            key={name}
+            label="উপজেলার নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="উপজেলার নাম লিখুন"
+            required
+          />
+        );
+      case "district":
+        return (
+          <InputField
+            key={name}
+            label="জেলার নাম *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="জেলার নাম লিখুন"
+            required
+          />
+        );
+      case "familyMembers":
+        return (
+          <InputField
+            key={name}
+            label="পরিবারের সদস্য সংখ্যা *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="পরিবারের সদস্য সংখ্যা লিখুন"
+            required
+            type="number"
+            min={1}
+          />
+        );
+      case "incomeSource":
+        return (
+          <SelectField
+            key={name}
+            label="আয়ের উৎস *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            required
+            options={[
+              "কৃষি",
+              "ব্যবসা",
+              "দিনমজুর",
+              "মৎস",
+              "গৃহিণী",
+              "বেসরকারি চাকরি",
+              "সরকারি চাকরি",
+              "অন্যান্য",
+              "বেকার",
+            ]}
+          />
+        );
+      case "monthlyIncome":
+        return (
+          <SelectField
+            key={name}
+            label="মাসিক আয় *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            required
+            options={[
+              "৫০০-১০০০ টাকা",
+              "১০০০-১৫০০ টাকা",
+              "২০০০-২৫০০ টাকা",
+              "২৫০০-৩০০০ টাকা",
+              "৩০০০-৩৫০০ টাকা",
+              "৩৫০۰-৪০০০ টাকা",
+              "৪০০০-৪৫০০ টাকা",
+              "৪৫০০-৫০০০ টাকা",
+              "৫০০০-৬০০০ টাকা",
+              "৬০০০-৭০০০ টাকা",
+              "৭০০০-৮০০০ টাকা",
+              "৮০০০-১০০০০ টাকা",
+              "১০০০০-১২০০০ টাকা",
+              "১২০০০-১৫০০০ টাকা",
+              "১৫০০০-২০০০০ টাকা",
+              "২০০০০-২৫০০০ টাকা",
+              "২৫০০০-৩০০০০ টাকা",
+              "৩০০০০-৪০০০০ টাকা",
+              "৪০০০০ টাকার উপরে",
+            ]}
+          />
+        );
+      case "landSize":
+        return (
+          <InputField
+            key={name}
+            label="জমির পরিমাণ (%) *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="জমির পরিমাণ লিখুন"
+            required
+            type="number"
+          />
+        );
+      case "houseType":
+        return (
+          <SelectField
+            key={name}
+            label="বাড়ীর ধরন *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            required
+            options={["ইটের", "কাঠের", "মাটির", "অন্যান্য"]}
+          />
+        );
+      case "toiletType":
+        return (
+          <SelectField
+            key={name}
+            label="শৌচাগারের ধরন *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            required
+            options={["স্যানিটারি", "কাঁচা", "অন্যান্য"]}
+          />
+        );
+      case "donationItem":
+        return (
+          <SelectField
+            key={name}
+            label="অনুদান সামগ্রী যা লাগবে *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            required
+            options={["টয়লেট প্যান", "রিং স্ল্যাব"]}
+          />
+        );
+      case "waterSource":
+        return (
+          <CheckboxGroup
+            key={name}
+            label="খাবার পানির উৎস *"
+            name={name}
+            options={["টিউবওয়েল", "কূপ", "নদী", "অন্যান্য"]}
+            selected={formData.waterSource}
+            onChange={handleChange}
+          />
+        );
+      case "totalChildren":
+        return (
+          <InputField
+            key={name}
+            label="মোট সন্তান সংখ্যা *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="মোট সন্তান সংখ্যা লিখুন"
+            required
+            type="number"
+            min={0}
+          />
+        );
+      case "boys":
+        return (
+          <InputField
+            key={name}
+            label="ছেলে সন্তান *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="ছেলে সন্তানের সংখ্যা"
+            required
+            type="number"
+            min={0}
+          />
+        );
+      case "girls":
+        return (
+          <InputField
+            key={name}
+            label="মেয়ে সন্তান *"
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            placeholder="মেয়ে সন্তানের সংখ্যা"
+            required
+            type="number"
+            min={0}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <main className="flex flex-col items-center">
+    <main className="min-h-screen bg-gradient-to-tr from-blue-300 via-purple-300 to-pink-300 flex flex-col items-center pb-12 px-4 md:px-8">
       {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="w-full h-64 md:h-96 bg-gray-300">
+      <section className="relative w-full max-w-6xl mt-8 md:mt-12 rounded-3xl overflow-hidden shadow-xl">
+        <div className="w-full h-48 md:h-96 relative">
           <img
-            src="/ngo registration and civil society.png" 
+            src="/ngo registration and civil society.png"
             alt="Banner"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover brightness-90"
           />
-        </div>
-
-        {/* Centered Logo */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-10 md:-bottom-16">
-          <img
-            src="/grok_image_x9u3x4t.jpg" 
-            alt="Logo"
-            className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg object-cover"
-          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-black/30" />
+          {/* Centered Logo */}
+          <div className="absolute left-1/2 bottom-4 md:bottom-8 transform -translate-x-1/2 rounded-full border-4 border-white shadow-lg overflow-hidden w-24 h-24 md:w-32 md:h-32 bg-white">
+            <img
+              src="/grok_image_x9u3x4t.jpg"
+              alt="Logo"
+              className="w-full h-full object-cover rounded-full"
+            />
+          </div>
         </div>
       </section>
 
-      {/* Form Section */}
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mt-16 md:mt-24">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 pb-8">
+      {/* Form Container with Glassmorphism */}
+      <div className="w-full max-w-5xl mt-20 backdrop-blur-md bg-white/70 rounded-3xl p-8 shadow-xl border border-white/30 overflow-hidden">
+        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-8 drop-shadow-lg">
           রেজিস্ট্রেশন ফর্ম
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           {/* Name */}
-<label className="flex flex-col">
-  <span className="text-gray-700 font-medium pb-2">নাম *</span>
-  <input
-    name="name"
-    value={formData.name}
-    onChange={handleChange}
-    type="text"
-    placeholder="আপনার নাম লিখুন"
-    required
-    className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Progress Bar */}
+        <div className="flex justify-between mb-10 max-w-3xl mx-auto px-4">
+          {steps.map((step, idx) => {
+            const isActive = idx === currentStep;
+            const isCompleted = idx < currentStep;
 
-  />
-</label>
-
-
-            {/* Father's Name */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">পিতার নাম *</span>
-              <input
-                name="fatherName"
-                value={formData.fatherName}
-                onChange={handleChange}
-                type="text"
-                placeholder="পিতার নাম লিখুন"
-                required
-              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Mother's Name */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">মাতার নাম *</span>
-              <input
-                name="motherName"
-                value={formData.motherName}
-                onChange={handleChange}
-                type="text"
-                placeholder="মাতার নাম লিখুন"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* NID */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">এনআইডি নাম্বার</span>
-              <input
-                name="nid"
-                value={formData.nid}
-                onChange={handleChange}
-                type="text"
-                placeholder="এনআইডি নাম্বার লিখুন"
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Date of Birth */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">জন্ম তারিখ *</span>
-              <input
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                type="date"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Phone */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">ফোন নাম্বার *</span>
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                type="tel"
-                placeholder="ফোন নাম্বার লিখুন"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Village */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">গ্রামের নাম *</span>
-              <input
-                name="village"
-                value={formData.village}
-                onChange={handleChange}
-                type="text"
-                placeholder="গ্রামের নাম লিখুন"
-                required
-            className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Union */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">ইউনিয়নের নাম *</span>
-              <input
-                name="union"
-                value={formData.union}
-                onChange={handleChange}
-                type="text"
-                placeholder="ইউনিয়নের নাম লিখুন"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Upazila */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">উপজেলার নাম *</span>
-              <input
-                name="upazila"
-                value={formData.upazila}
-                onChange={handleChange}
-                type="text"
-                placeholder="উপজেলার নাম লিখুন"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* District */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">জেলার নাম *</span>
-              <input
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                type="text"
-                placeholder="জেলার নাম লিখুন"
-                required
-              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Family Members */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">পরিবারের সদস্য সংখ্যা *</span>
-              <input
-                name="familyMembers"
-                value={formData.familyMembers}
-                onChange={handleChange}
-                type="number"
-                placeholder="পরিবারের সদস্য সংখ্যা লিখুন"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* Income Source */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">আয়ের উৎস *</span>
-              <select
-                name="incomeSource"
-                value={formData.incomeSource}
-                onChange={handleChange}
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
+            return (
+              <div
+                key={step.label}
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => {
+                  if (idx <= currentStep) setCurrentStep(idx);
+                }}
               >
-                <option value="">Please select</option>
-                <option value="কৃষি">কৃষি</option>
-                <option value="ব্যবসা">ব্যবসা</option>
-                <option value="দিনমজুর">দিনমজুর</option>
-                <option value="মৎস">মৎস</option>
-                <option value="গৃহিণী">গৃহিণী</option>
-                <option value="ব্যবসা">ব্যবসা</option>
-                <option value="বেসরকারি চাকরি">বেসরকারি চাকরি</option>
-                <option value="সরকারি চাকরি">সরকারি চাকরি</option>
-                <option value="অন্যান্য">অন্যান্য</option>
-                <option value="বেকার">বেকার</option>
-              </select>
-            </label>
+                <div
+                  className={`text-2xl w-12 h-12 rounded-full flex items-center justify-center
+                    ${
+                      isCompleted
+                        ? "bg-gradient-to-br from-green-400 to-teal-500 text-white shadow-lg"
+                        : isActive
+                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg"
+                        : "bg-gray-300 text-gray-600"
+                    }
+                    transition-all duration-300
+                  `}
+                >
+                  {step.icon}
+                </div>
+                <span
+                  className={`text-xs mt-2 text-center max-w-[70px] select-none
+                    ${isActive ? "font-semibold text-blue-700" : "text-gray-700"}
+                    `}
+                >
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
 
-            {/* Monthly Income */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">মাসিক আয় *</span>
-              <select
-                name="monthlyIncome"
-                value={formData.monthlyIncome}
-                onChange={handleChange}
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              >
-                <option value="">Please select</option>
-                <option value="৫০০-১০০০ টাকা ">৫০০-১০০০ টাকা</option>
-                <option value="১০০০-১৫০০ টাকা ">১০০০-১৫০০ টাকা</option>
-                <option value="২০০০-২৫০০ টাকা">২০০০-২৫০০ টাকা</option>
-                <option value="২৫০০-৩০০০ টাকা">২৫০০-৩০০০ টাকা</option>
-                <option value="৩০০০-৩৫০০ টাকা ">৩০০০-৩৫০০ টাকা</option>
-                <option value="৩৫০০-৪০০০ টাকা">৩৫০০-৪০০০ টাকা</option>
-                <option value="৪০০০-৪৫০০ টাকা">৪০০০-৪৫০০ টাকা</option>
-                <option value="৪৫০০-৫০০০ টাকা">৪৫০০-৫০০০ টাকা</option>
-                <option value="৫০০০-৬০০০ টাকা ">৫০০০-৬০০০ টাকা</option>
-                <option value="৬০০০-৭০০০ টাকা">৬০০০-৭০০০ টাকা</option>
-                <option value="৭০০০-৮০০০ টাকা">৭০০০-৮০০০ টাকা</option>
-                <option value="৮০০০-১০০০০ টাকা">৮০০০-১০০০০ টাকা</option>
-                <option value="১০০০০-১২০০০ টাকা ">১০০০০-১২০০০ টাকা</option>
-                <option value="১২০০০-১৫০০০ টাকা">১২০০০-১৫০০০ টাকা</option>
-                <option value="১৫০০০-২০০০০ টাকা">১৫০০০-২০০০০ টাকা</option>
-                <option value="২০০০০-২৫০০০ টাকা">২০০০০-২৫০০০ টাকা</option>
-                <option value="২৫০০০-৩০০০০ টাকা ">২৫০০০-৩০০০০ টাকা</option>
-                <option value="৩০০০০-৪০০০০ টাকা">৩০০০০-৪০০০০ টাকা</option>
-                <option value="৪০০০০ টাকার উপরে">৪০০০০ টাকার উপরে</option>
-              
-              </select>
-            </label>
-
-            {/* Land Size */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">জমির পরিমাণ (শতাংশ) *</span>
-              <input
-                name="landSize"
-                value={formData.landSize}
-                onChange={handleChange}
-                type="number"
-                placeholder="Please enter a value"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            {/* House Type */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">বাড়ীর ধরন *</span>
-              <select
-                name="houseType"
-                value={formData.houseType}
-                onChange={handleChange}
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              >
-                <option value="">Please select</option>
-                <option value="ইটের">ইটের</option>
-                <option value="কাঠের">কাঠের</option>
-                <option value="মাটির">মাটির</option>
-                <option value="অন্যান্য">অন্যান্য</option>
-              </select>
-            </label>
-
-            {/* Toilet Type */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">শৌচাগারের ধরন *</span>
-              <select
-                name="toiletType"
-                value={formData.toiletType}
-                onChange={handleChange}
-                required
-               className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              >
-                <option value="">Please select</option>
-                <option value="স্যানিটারি">স্যানিটারি</option>
-                <option value="কাঁচা">কাঁচা</option>
-                <option value="অন্যান্য">অন্যান্য</option>
-              </select>
-            </label>
-
-            {/* Donation Item */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">অনুদান সামগ্রী যা লাগবে *</span>
-              <select
-                name="donationItem"
-                value={formData.donationItem}
-                onChange={handleChange}
-                required
-               className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              >
-                <option value="">Please select</option>
-                <option value="টয়লেট প্যান">টয়লেট </option>
-                <option value="রিং স্ল্যাব">টিউবওয়েল</option>
-              </select>
-            </label>
-
-            {/* Water Source */}
-            <div className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">খাবার পানির উৎস *</span>
-              {["টিউবওয়েল", "কূপ", "নদী", "অন্যান্য"].map((source) => (
-                <label key={source} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    name="waterSource"
-                    value={source}
-                    checked={formData.waterSource.includes(source)}
-                    onChange={handleChange}
-                  />
-                  <span>{source}</span>
-                </label>
-              ))}
-            </div>
-
-            {/* Children Numbers */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">মোট সন্তান সংখ্যা *</span>
-              <input
-                name="totalChildren"
-                value={formData.totalChildren}
-                onChange={handleChange}
-                type="number"
-                placeholder="মোট সন্তান সংখ্যা লিখুন"
-                required
-              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">ছেলে সন্তান *</span>
-              <input
-                name="boys"
-                value={formData.boys}
-                onChange={handleChange}
-                type="number"
-                placeholder="ছেলে সন্তানের সংখ্যা"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
-
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">মেয়ে সন্তান *</span>
-              <input
-                name="girls"
-                value={formData.girls}
-                onChange={handleChange}
-                type="number"
-                placeholder="মেয়ে সন্তানের সংখ্যা"
-                required
-                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-              />
-            </label>
+        <form
+          onSubmit={handleSubmit}
+          className="max-w-3xl mx-auto space-y-10"
+          noValidate
+        >
+          <div
+            key={currentStep}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-700 ease-in-out"
+          >
+            {/* Render fields of current step */}
+            {steps[currentStep].fields.map((fieldName) => renderField(fieldName))}
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:scale-[1.01] transition"
-            >
-              আবেদন ফি জমা দিন
-            </button>
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center mt-6 max-w-3xl mx-auto px-2">
+            {currentStep > 0 ? (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="rounded-lg px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium shadow-sm transition transform hover:-translate-y-0.5"
+              >
+                পূর্বের
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {currentStep < steps.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="rounded-lg px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold shadow-lg hover:scale-105 transform transition"
+              >
+                পরবর্তী
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={loading}
+                className={`rounded-lg px-8 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold shadow-lg hover:scale-105 transform transition flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
+              >
+                {loading ? (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                ) : null}
+                আবেদন ফি জমা দিন
+              </button>
+            )}
           </div>
         </form>
-   
       </div>
 
-              {/* Footer */}
-      <footer className="bg-gray-50 border-t mt-auto">
-        <div className="flex flex-col items-center py-8 space-y-4">
-          <nav className="flex gap-6 text-gray-600 text-sm md:text-base">
-            <a href="#" className="hover:text-blue-600">সর্বাবলী</a>
-            <a href="#" className="hover:text-blue-600">প্রাইভাসি নিতি</a>
-            <a href="#" className="hover:text-blue-600">যোগাযোগ</a>
+      {/* Footer */}
+      <footer className="bg-white/80 backdrop-blur-md w-full max-w-6xl rounded-t-3xl mt-16 border-t border-gray-200 shadow-inner">
+        <div className="flex flex-col items-center py-6 space-y-4 text-gray-600 text-sm md:text-base">
+          <nav className="flex gap-8">
+            <a href="#" className="hover:text-blue-600 transition">
+              সর্বাবলী
+            </a>
+            <a href="#" className="hover:text-blue-600 transition">
+              প্রাইভাসি নিতি
+            </a>
+            <a href="#" className="hover:text-blue-600 transition">
+              যোগাযোগ
+            </a>
           </nav>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 select-none">
             © UFO নিরাপদ শৌচাগার কর্মসূচী. সর্বস্বত্ব সংরক্ষিত
           </p>
         </div>
       </footer>
     </main>
+  );
+}
+
+// Smaller input components for reuse
+
+function InputField({ label, name, value, onChange, placeholder, type = "text", required = false, min }) {
+  return (
+    <label className="flex flex-col">
+      <span className="text-gray-700 font-medium pb-2">{label}</span>
+      <input
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        type={type}
+        required={required}
+        min={min}
+        className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 bg-white hover:shadow-lg"
+      />
+    </label>
+  );
+}
+
+function SelectField({ label, name, value, onChange, required = false, options }) {
+  return (
+    <label className="flex flex-col">
+      <span className="text-gray-700 font-medium pb-2">{label}</span>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="h-12 px-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 hover:shadow-lg"
+      >
+        <option value="">অনুগ্রহ করে নির্বাচন করুন</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function CheckboxGroup({ label, name, options, selected, onChange }) {
+  return (
+    <div className="flex flex-col mb-4">
+      <span className="text-gray-700 font-medium pb-2">{label}</span>
+      <div className="flex flex-wrap gap-4">
+        {options.map((opt) => (
+          <label key={opt} className="flex items-center space-x-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              name={name}
+              value={opt}
+              checked={selected.includes(opt)}
+              onChange={onChange}
+              className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
+            />
+            <span>{opt}</span>
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
