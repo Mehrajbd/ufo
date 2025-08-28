@@ -79,19 +79,21 @@ export default function Home() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">নাম *</span>
-              <input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                type="text"
-                placeholder="আপনার নাম লিখুন"
-                required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
+           {/* Name */}
+<label className="flex flex-col">
+  <span className="text-gray-700 font-medium pb-2">নাম *</span>
+  <input
+    name="name"
+    value={formData.name}
+    onChange={handleChange}
+    type="text"
+    placeholder="আপনার নাম লিখুন"
+    required
+    className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+  />
+</label>
+
 
             {/* Father's Name */}
             <label className="flex flex-col">
@@ -103,7 +105,8 @@ export default function Home() {
                 type="text"
                 placeholder="পিতার নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -117,7 +120,8 @@ export default function Home() {
                 type="text"
                 placeholder="মাতার নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -130,7 +134,8 @@ export default function Home() {
                 onChange={handleChange}
                 type="text"
                 placeholder="এনআইডি নাম্বার লিখুন"
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -143,7 +148,8 @@ export default function Home() {
                 onChange={handleChange}
                 type="date"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -157,7 +163,8 @@ export default function Home() {
                 type="tel"
                 placeholder="ফোন নাম্বার লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -171,7 +178,8 @@ export default function Home() {
                 type="text"
                 placeholder="গ্রামের নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -185,7 +193,8 @@ export default function Home() {
                 type="text"
                 placeholder="ইউনিয়নের নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -199,7 +208,8 @@ export default function Home() {
                 type="text"
                 placeholder="উপজেলার নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -213,7 +223,8 @@ export default function Home() {
                 type="text"
                 placeholder="জেলার নাম লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -227,7 +238,8 @@ export default function Home() {
                 type="number"
                 placeholder="পরিবারের সদস্য সংখ্যা লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -239,13 +251,20 @@ export default function Home() {
                 value={formData.incomeSource}
                 onChange={handleChange}
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               >
                 <option value="">Please select</option>
                 <option value="কৃষি">কৃষি</option>
                 <option value="ব্যবসা">ব্যবসা</option>
-                <option value="চাকরি">চাকরি</option>
+                <option value="দিনমজুর">দিনমজুর</option>
+                <option value="মৎস">মৎস</option>
+                <option value="গৃহিণী">গৃহিণী</option>
+                <option value="ব্যবসা">ব্যবসা</option>
+                <option value="বেসরকারি চাকরি">বেসরকারি চাকরি</option>
+                <option value="সরকারি চাকরি">সরকারি চাকরি</option>
                 <option value="অন্যান্য">অন্যান্য</option>
+                <option value="বেকার">বেকার</option>
               </select>
             </label>
 
@@ -257,7 +276,8 @@ export default function Home() {
                 value={formData.monthlyIncome}
                 onChange={handleChange}
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               >
                 <option value="">Please select</option>
                 <option value="৫০০-১০০০ টাকা ">৫০০-১০০০ টাকা</option>
@@ -293,7 +313,8 @@ export default function Home() {
                 type="number"
                 placeholder="Please enter a value"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -305,7 +326,8 @@ export default function Home() {
                 value={formData.houseType}
                 onChange={handleChange}
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               >
                 <option value="">Please select</option>
                 <option value="ইটের">ইটের</option>
@@ -323,7 +345,8 @@ export default function Home() {
                 value={formData.toiletType}
                 onChange={handleChange}
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               >
                 <option value="">Please select</option>
                 <option value="স্যানিটারি">স্যানিটারি</option>
@@ -334,18 +357,18 @@ export default function Home() {
 
             {/* Donation Item */}
             <label className="flex flex-col">
-              <span className="text-gray-700 font-medium pb-2">অনুদান সামগ্রী *</span>
+              <span className="text-gray-700 font-medium pb-2">অনুদান সামগ্রী যা লাগবে *</span>
               <select
                 name="donationItem"
                 value={formData.donationItem}
                 onChange={handleChange}
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               >
                 <option value="">Please select</option>
-                <option value="টয়লেট প্যান">টয়লেট প্যান</option>
-                <option value="রিং স্ল্যাব">রিং স্ল্যাব</option>
-                <option value="পাইপ/অন্যান্য">পাইপ/অন্যান্য</option>
+                <option value="টয়লেট প্যান">টয়লেট </option>
+                <option value="রিং স্ল্যাব">টিউবওয়েল</option>
               </select>
             </label>
 
@@ -376,7 +399,8 @@ export default function Home() {
                 type="number"
                 placeholder="মোট সন্তান সংখ্যা লিখুন"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -389,7 +413,8 @@ export default function Home() {
                 type="number"
                 placeholder="ছেলে সন্তানের সংখ্যা"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
 
@@ -402,7 +427,8 @@ export default function Home() {
                 type="number"
                 placeholder="মেয়ে সন্তানের সংখ্যা"
                 required
-                className="h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
               />
             </label>
           </div>
