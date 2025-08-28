@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { FaUser, FaHome, FaMoneyBillWave, FaChild, FaGift } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const steps = [
   {
@@ -196,18 +198,25 @@ export default function Home() {
             error={errors[name]}
           />
         );
-      case "dob":
-        return (
-          <InputField
-            key={name}
-            label="জন্ম তারিখ *"
-            name={name}
-            value={formData[name]}
-            onChange={handleChange}
-            type="date"
-            error={errors[name]}
-          />
-        );
+   case "dob":
+  return (
+    <label key={name} className="flex flex-col">
+      <span className="text-gray-700 font-medium pb-2">জন্ম তারিখ *</span>
+      <DatePicker
+        selected={formData.dob ? new Date(formData.dob) : null}
+        onChange={(date) =>
+          setFormData({ ...formData, dob: date ? date.toISOString().split("T")[0] : "" })
+        }
+        dateFormat="yyyy-MM-dd"
+        placeholderText="জন্ম তারিখ নির্বাচন করুন"
+        className={`h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 bg-white hover:shadow-lg w-full
+          ${errors[name] ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"}
+        `}
+      />
+      {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name]}</span>}
+    </label>
+  );
+
       case "phone":
         return (
           <InputField
