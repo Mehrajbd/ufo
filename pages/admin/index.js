@@ -2,37 +2,68 @@
 import React, { useState, useEffect } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 
+// ✅ API Base URL
+const API_BASE =
+  process.env.NODE_ENV === "development"
+    ? "https://bkash-project-backend.vercel.app/api/v1"
+    : "https://bkash-project-backend.vercel.app/api/v1";
+
 export default function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // ✅ Check for existing token
   useEffect(() => {
-    const adminStatus = localStorage.getItem("isAdmin");
-    if (adminStatus === "true") {
-      setIsLoggedIn(true);
-    }
+    const token = localStorage.getItem("accessToken");
+    if (token) setIsLoggedIn(true);
   }, []);
 
-  const handleLogin = (e) => {
+  // ✅ Login Function
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const adminUser = "admin";
-    const adminPass = "1234";
+    setLoading(true);
 
-    if (formData.username === adminUser && formData.password === adminPass) {
-      localStorage.setItem("isAdmin", "true");
-      setIsLoggedIn(true);
-    } else {
-      alert("❌ Invalid Credentials");
+    try {
+      console.log("📡 Sending login request to:", `${API_BASE}/auth/login`);
+
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("🔍 API Response:", data);
+
+      const token = data?.data?.accessToken;
+      if (res.ok && data.success && token) {
+        localStorage.setItem("accessToken", token);
+        setIsLoggedIn(true);
+        console.log("✅ Login successful, token stored!");
+      } else {
+        console.error("❌ Login failed:", data.message || data);
+        alert("❌ Login failed: " + (data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("⚠️ Server not responding");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ✅ Logout Function
   const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("accessToken");
     setIsLoggedIn(false);
   };
 
-  // 🚀 Show Dashboard if Logged in
+  // 🚀 Dashboard after login
   if (isLoggedIn) {
     return (
       <div className="flex h-screen bg-gray-100">
@@ -59,7 +90,7 @@ export default function AdminPanel() {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Top Navbar */}
+          {/* Navbar */}
           <header className="h-16 bg-white shadow flex items-center justify-between px-6">
             <h1 className="text-xl font-semibold">Dashboard</h1>
             <div className="flex items-center gap-4">
@@ -77,7 +108,7 @@ export default function AdminPanel() {
             </div>
           </header>
 
-          {/* Dashboard Content */}
+          {/* Content */}
           <main className="flex-1 p-6 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Volunteers</h2>
             <div className="bg-white rounded shadow overflow-hidden">
@@ -128,22 +159,22 @@ export default function AdminPanel() {
         onSubmit={handleLogin}
         className="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm"
       >
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-6 flex items-center justify-center gap-2">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-6">
           🔐 Admin Login
         </h2>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Username
+            Email
           </label>
           <div className="flex items-center border rounded px-3">
             <FaUser className="text-gray-400 mr-2" />
             <input
-              type="text"
-              placeholder="admin"
-              value={formData.username}
+              type="email"
+              placeholder="admin@gmail.com"
+              value={formData.email}
               onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
+                setFormData({ ...formData, email: e.target.value })
               }
               required
               className="w-full py-2 outline-none"
@@ -179,13 +210,14 @@ export default function AdminPanel() {
 
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          Sign In
+          {loading ? "Logging in..." : "Sign In"}
         </button>
 
         <p className="text-center text-xs text-gray-400 mt-4">
-          Demo Login → <strong>admin / 1234</strong>
+          Demo Login → <strong>admin@gmail.com / 123456</strong>
         </p>
       </form>
     </div>

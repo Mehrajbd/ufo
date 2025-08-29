@@ -19,7 +19,13 @@ const steps = [
   {
     label: "আয় এবং সম্পদ",
     icon: <FaMoneyBillWave />,
-    fields: ["incomeSource", "monthlyIncome", "landSize", "houseType", "toiletType"],
+    fields: [
+      "incomeSource",
+      "monthlyIncome",
+      "landSize",
+      "houseType",
+      "toiletType",
+    ],
   },
   {
     label: "পরিবারের চলাচল",
@@ -76,12 +82,10 @@ export default function Home() {
     } else {
       setFormData({ ...formData, [name]: value });
     }
-
-    // typing করার সাথে সাথে error clear হবে
     setErrors({ ...errors, [name]: "" });
   };
 
-  // Validation helper
+  // Validation
   const validateFields = (fields) => {
     const newErrors = {};
     fields.forEach((field) => {
@@ -89,7 +93,7 @@ export default function Home() {
         (Array.isArray(formData[field]) && formData[field].length === 0) ||
         (!Array.isArray(formData[field]) && !formData[field])
       ) {
-        newErrors[field] = "⚠️ এই ফিল্ডটি পূরণ করুন";
+        newErrors[field] = " এই ফিল্ডটি পূরণ করুন";
       }
     });
     setErrors(newErrors);
@@ -108,45 +112,99 @@ export default function Home() {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const currentFields = steps[currentStep].fields;
-    if (!validateFields(currentFields)) return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setLoading(true);
-    setTimeout(() => {
+  // validation check
+  const currentFields = steps[currentStep].fields;
+  if (!validateFields(currentFields)) return;
+
+  setLoading(true);
+
+  try {
+  //  Register User
+      const registerRes = await fetch(
+        "https://bkash-project-backend.vercel.app/api/v1/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            fathername: formData.fatherName,
+            mothername: formData.motherName,
+            nid: formData.nid,
+            dateOfBirth: formData.dob,
+            phone: formData.phone,
+            village: formData.village,
+            union: formData.union,
+            upazila: formData.upazila,
+            zila: formData.district,
+            numberOfFamilyMembers: formData.familyMembers,
+            sourceOfIncome: formData.incomeSource,
+            monthlyIncome: formData.monthlyIncome,
+            landArea: formData.landSize,
+            houseType: formData.houseType,
+            toiletType: formData.toiletType,
+            donationMaterials: formData.donationItem,
+            sourceOfDrinkingWater: formData.waterSource.join(", "),
+            numberOfChildren: formData.totalChildren,
+            numberOfSons: formData.boys,
+            numberOfDaughters: formData.girls,
+          }),
+        }
+      );
+
+    const registerData = await registerRes.json();
+
+      if (registerData.errorMessages) {
+        const errMsg =
+          registerData?.message ||
+          registerData?.errorMessages?.[0]?.message ||
+          "রেজিস্ট্রেশন ব্যর্থ হয়েছে!";
+        alert(errMsg);
+        setLoading(false);
+        return;
+      }
+
+      if (!registerData?.data?._id) {
+        alert(" রেজিস্ট্রেশন ব্যর্থ হয়েছে");
+        setLoading(false);
+        return;
+      }
+
+      const pendingUserId = registerData.data._id;
+
+      // 2️ Create Payment
+      const paymentRes = await fetch(
+        "https://bkash-project-backend.vercel.app/api/v1/payment/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pendingUserId,
+            amount: 100, // Application Fee
+          }),
+        }
+      );
+
+      const paymentData = await paymentRes.json();
+
+      // 3️ Redirect to bKash Merchant Page
+      if (paymentData?.data?.bkashURL) {
+        window.location.href = paymentData.data.bkashURL;
+      } else {
+        alert(" পেমেন্ট শুরু হয়নি");
+        console.error("Payment Error:", paymentData);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      alert(" সার্ভার সমস্যা!");
+    } finally {
       setLoading(false);
-      console.log("Form Submitted:", formData);
-      alert(" ✅ ফর্ম সাবমিট হয়েছে!");
-      setCurrentStep(0);
-      setFormData({
-        name: "",
-        fatherName: "",
-        motherName: "",
-        nid: "",
-        dob: "",
-        phone: "",
-        village: "",
-        union: "",
-        upazila: "",
-        district: "",
-        familyMembers: "",
-        incomeSource: "",
-        monthlyIncome: "",
-        landSize: "",
-        houseType: "",
-        toiletType: "",
-        donationItem: "",
-        waterSource: [],
-        totalChildren: "",
-        boys: "",
-        girls: "",
-      });
-      setErrors({});
-    }, 1500);
+    }
   };
 
-  // Render fields
+  // -------- Render Fields --------
   const renderField = (name) => {
     switch (name) {
       case "name":
@@ -198,24 +256,33 @@ export default function Home() {
             error={errors[name]}
           />
         );
-   case "dob":
-  return (
-    <label key={name} className="flex flex-col">
-      <span className="text-gray-700 font-medium pb-2">জন্ম তারিখ *</span>
-      <DatePicker
-        selected={formData.dob ? new Date(formData.dob) : null}
-        onChange={(date) =>
-          setFormData({ ...formData, dob: date ? date.toISOString().split("T")[0] : "" })
-        }
-        dateFormat="yyyy-MM-dd"
-        placeholderText="জন্ম তারিখ নির্বাচন করুন"
-        className={`h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 bg-white hover:shadow-lg w-full
-          ${errors[name] ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"}
+      case "dob":
+        return (
+          <label key={name} className="flex flex-col">
+            <span className="text-gray-700 font-medium pb-2">জন্ম তারিখ *</span>
+            <DatePicker
+              selected={formData.dob ? new Date(formData.dob) : null}
+              onChange={(date) =>
+                setFormData({
+                  ...formData,
+                  dob: date ? date.toISOString().split("T")[0] : "",
+                })
+              }
+              dateFormat="yyyy-MM-dd"
+              placeholderText="জন্ম তারিখ নির্বাচন করুন"
+              className={`h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 bg-white hover:shadow-lg w-full
+          ${
+            errors[name]
+              ? "border-red-500 focus:ring-red-400"
+              : "border-gray-300 focus:ring-blue-400"
+          }
         `}
-      />
-      {errors[name] && <span className="text-red-500 text-sm mt-1">{errors[name]}</span>}
-    </label>
-  );
+            />
+            {errors[name] && (
+              <span className="text-red-500 text-sm mt-1">{errors[name]}</span>
+            )}
+          </label>
+        );
 
       case "phone":
         return (
